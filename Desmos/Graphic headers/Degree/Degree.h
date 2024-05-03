@@ -1,13 +1,11 @@
 #pragma once
 #include "Functions.h"
-
-class Logo : public Functions {
+class Degree : public Functions {
 public:
-	Logo();
-	Logo(string func, bool sign);
-	~Logo() override {}
+	Degree();
+	Degree(string func, bool sign);
+	~Degree() override {}
 	void Find(string func) override;
-	double log_base_a(double x, double a);
 private:
 	vector<Cord> cd;
 	string func;
