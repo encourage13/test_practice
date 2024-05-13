@@ -5,21 +5,20 @@ Degree::Degree(string func, bool sign) {
 	this->func = func;
 	this->sign = sign;
 }
-void Degree::Find() {
+void Degree::Find(std::vector<std::pair<std::vector<Cord>, bool>>& coordinates) {
 	string argument;
 	bool flag = false;
 	auto it = this->func.begin();
 	if (*it == '|') {
 		flag = true;
-		it++;
-		for (it; *it != '|'; it++) {
-			argument += *it;
-		}
+		auto next_lock = std::find(std::next(it), this->func.end(), '|');
+		argument.assign(std::next(it), next_lock);
+		it = next_lock;
 	}
-	else{ argument = this->func; }
-	if(flag){ cout << "Аргумент модуля: " << argument << endl; }
-	else{ cout << "Аргумент степенной: " << argument << endl; }
-	for (double x = -10; x < 10.1; x += 0.125) {
+	else { argument = this->func; }
+	if (flag) { cout << "Аргумент модуля: " << argument << endl; }
+	else { cout << "Аргумент степенной: " << argument << endl; }
+	for (double x = A; x < B; x += C) {
 		double y = Calculate(x, argument, argument.size());
 		Cord ss;
 		if (flag) {
@@ -44,8 +43,5 @@ void Degree::Find() {
 			i++;
 		}
 	}
-	this->coordinates.push_back({ this->cd,this->sign });
-	for (const auto& it : this->cd) {
-		cout << "X: " << it.x << "   Y: " << it.y << endl;
-	}
+	coordinates.push_back({ this->cd,this->sign });
 }

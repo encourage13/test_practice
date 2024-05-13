@@ -8,56 +8,45 @@ using namespace std;
 Functions* Functions::Create(std::pair<std::string, std::string> pa_el, bool sign) {
 	Functions* object = nullptr;
 	try {
-		string mas[] = { "sin","arcsin","arctg","arcctg","arccos","cos","tg","ctg" };
-		bool flag = false;
-		bool flag1 = false;
-		for (const string& element : mas) {
-			if (element == pa_el.first) {
-				flag = true;
-				break;
-			}
-		}
-		for (auto element = pa_el.second.begin(); element != pa_el.second.end(); element++) {
-			if (*element == '^') {
-				flag1 = true;
-				break;
-			}
-		}
 		if (pa_el.first.compare(0, 3, "log", 0, 3) == 0) {
-			cout << "Logo" << endl;
-			object = new Logo(pa_el.second, sign);
+			std::cout << "Logo" << std::endl;
+			return object = new Logo(pa_el.second, sign);
 		}
 		else if (pa_el.first.compare(0, 1, "x", 0, 1) == 0) {
-			auto it = pa_el.second.begin();
-			if (*it == '(') {
-				cout << "IRR" << endl;
-				object = new Irr(pa_el.second, sign);
+			if (pa_el.second.front() == '(') {
+				std::cout << "IRR" << std::endl;
+				return object = new Irr(pa_el.second, sign);
 			}
 			else {
-				cout << "Stepennaya" << endl;
-				object = new Degree(pa_el.second, sign);
+				std::cout << "Stepennaya" << std::endl;
+				return object = new Degree(pa_el.second, sign);
 			}
 		}
-		else if (flag) {
-			cout << "TRIG" << endl;
-			object = new Trig(pa_el.second, sign);
+		else if (TrigFunction(pa_el.first)) {
+			std::cout << "TRIG" << std::endl;
+			return object = new Trig(pa_el.second, sign);
 		}
-		else if (flag1) {
-			cout << "Pokazatelnaya" << endl;
-			object = new Indct(pa_el.second, sign);
+		else if (pa_el.second.find('^') != std::string::npos) {
+			std::cout << "Pokazatelnaya" << std::endl;
+			return object = new Indct(pa_el.second, sign);
 		}
 		else {
 			return nullptr;
 		}
 	}
-	catch (invalid_argument& e) {
-		cerr << "Ошибка: " << e.what() << endl;
+	catch (const std::invalid_argument& e) {
+		std::cerr << "Invalid argument: " << e.what() << std::endl;
+		return nullptr;
 	}
-	return object;
+}
+
+bool Functions::TrigFunction(const std::string& func) {
+	static const std::vector<std::string> trigFunctions = { "sin", "arcsin", "arctg", "arcctg", "arccos", "cos", "tg", "ctg" };
+	return std::find(trigFunctions.begin(), trigFunctions.end(), func) != trigFunctions.end();
 }
 Functions::~Functions() {}
-void Functions::set() {
-	this->Casting();
+void Functions::set(string func) {
+	this->Casting(func);
 	for (const auto& tup_el : this->vec) {
 		pair<string, string> pa_el = get<0>(tup_el);
 		bool sign = get<1>(tup_el);
@@ -69,27 +58,14 @@ void Functions::set() {
 			this->sum_value.push_back({ value, sign });
 		}
 		else {
-			pointer->Find();
+			pointer->Find(this->coordinates);
 			delete pointer;
 		}
 	}
 }
-double Functions::SumValue() {
-	double value = 0;
-	for (auto pa_el : this->sum_value) {
-		if (pa_el.second == false) {
-			pa_el.first *= -1;
-		}
-		value += pa_el.first;
-	}
-	return value;
-}
-void Functions::Casting() {
-	setlocale(LC_ALL, "RUS");
-	string str;
+void Functions::Casting(string func) {
 	bool sign;
-	getline(std::cin, str);
-	vector<string> elements = this->Split(str);
+	vector<string> elements = this->Split(func);
 	for (const auto& element : elements) {
 		cout << element << endl;
 	}
@@ -115,7 +91,7 @@ void Functions::Casting() {
 		}
 	}
 	auto result1 = detectMathFunction(elements[0]);
-	cout << "Название функции: " << result1.first << ", Выражение: " << result1.second << endl;
+	cout << "Function name: " << result1.first << ", Expression: " << result1.second << endl;
 }
 vector<string> Functions::Split(const string& expression) {
 	vector<string> elements;
@@ -136,7 +112,7 @@ pair<string, string> Functions::detectMathFunction(const string& str) {
 		return make_pair(match.str(), str);
 	}
 	else {
-		return make_pair("Не найдено", "Математическая функция не найдена или не соответствует общему шаблону");
+		return make_pair("РќРµ РЅР°Р№РґРµРЅРѕ", "РњР°С‚РµРјР°С‚РёС‡РµСЃРєР°СЏ С„СѓРЅРєС†РёСЏ РЅРµ РЅР°Р№РґРµРЅР° РёР»Рё РЅРµ СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓРµС‚ РѕР±С‰РµРјСѓ С€Р°Р±Р»РѕРЅСѓ");
 	}
 }
 string Functions::Defi(string func) {
@@ -148,7 +124,7 @@ string Functions::Defi(string func) {
 		return argument;
 	}
 	else {
-		return "Не удалось извлечь аргумент из функции.";
+		return "РќРµ СѓРґР°Р»РѕСЃСЊ РёР·РІР»РµС‡СЊ Р°СЂРіСѓРјРµРЅС‚ РёР· С„СѓРЅРєС†РёРё.";
 	}
 }
 double Functions::Calculate(double x, string func, int size) {
@@ -216,7 +192,6 @@ double Functions::Calculate(double x, string func, int size) {
 			}
 			i--;
 		}
-		//string mas = "*/^)";
 		if ((func[i] == 'x' && (func[i + 1] != '*' && func[i + 1] != '/' && func[i + 1] != '^' && func[i + 1] != ')')) || (func[i] == 'e' && (func[i + 1] != '*' && func[i + 1] != '/' && func[i + 1] != '^' && func[i + 1] != ')')) || (isdigit(func[i]) && ((func[i + 1] != '.' && func[i+1]!=',') && func[i + 1] != '*' && func[i + 1] != '/' && func[i + 1] != '^' && func[i + 1] != ')' && !isdigit(func[i + 1]))) || (func[i] == ')' && (func[i + 1] != '*' && func[i + 1] != '/' && func[i + 1] != '^' && func[i + 1] != ')' && i != size - 1))) {
 			return Calculate(x, &func[0], i + 1) * Calculate(x, &func[i + 1], size - i - 1);
 		}
@@ -275,6 +250,29 @@ double Functions::Calculate(double x, string func, int size) {
 	if (func[0] == 'a' && func[1] == 'b' && func[2] == 's') {
 		return abs(Calculate(x, &func[3], size - 3));
 	}
+	return 0;
 }
 
+std::vector<std::pair<double, double>> Get(string func) {
+	Functions* p = Functions::Create(std::make_pair("log", "loge(2x)"), false);
+	p->set(func);
+	std::map<double, double> sum_map;
+	for (const auto& coord : p->coordinates) {
+		bool flag = coord.second;
+		for (const auto& elements : coord.first) {
+			if (flag) {
+				sum_map[elements.x] += elements.y;
+			}
+			else {
+				sum_map[elements.x] -= elements.y;
+			}
+		}
+	}
+	std::vector<std::pair<double, double>> result;
+	for (const auto& pair : sum_map) {
+		result.push_back(std::make_pair(pair.first, pair.second));
+	}
+	delete p;
+	return result;
+}
 

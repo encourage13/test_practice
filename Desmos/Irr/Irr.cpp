@@ -5,8 +5,7 @@ Irr::Irr(string func, bool sign) {
 	this->func = func;
 	this->sign = sign;
 }
-void Irr::Find() {
-	bool flag = false;
+void Irr::Find(std::vector<std::pair<std::vector<Cord>, bool>>& coordinates) {
 	string argument = this->Defi(this->func);
 	cout << "Аргумент иррациональной: " << argument << endl;
 	int index = 0;
@@ -16,15 +15,12 @@ void Irr::Find() {
 		}
 	}
 	index++;
-	string save;
-	for (index; index!=this->func.size(); index++) {
-		save += this->func[index];
-	}
-	for (double x = -10; x < 10.1; x += 0.125) {
+	string save = this->func.substr(index);
+	for (double x = A; x < B; x += C) {
 		double y = Calculate(x, argument, argument.size());
 		Cord ss;
 		double a = stod(save);
-		double y1 = pow(y, a);    
+		double y1 = pow(y, a);
 		ss.x = x;
 		ss.y = y1;
 		this->cd.push_back(ss);
@@ -33,14 +29,11 @@ void Irr::Find() {
 	for (int i = 0; i < j;) {
 		if (isfinite(this->cd[i].y) == false) {
 			this->cd.erase(this->cd.begin() + i);
-			j--;  
+			j--;
 		}
 		else {
-			i++;  
+			i++;
 		}
 	}
-	this->coordinates.push_back({ this->cd,this->sign });
-	for (const auto& it : this->cd) {
-		cout << "X: " << it.x << "   Y: " << it.y << endl;
-	}
+	coordinates.push_back({ this->cd,this->sign });
 }
